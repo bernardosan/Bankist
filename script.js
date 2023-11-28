@@ -160,6 +160,19 @@ btnTransfer.addEventListener('click', function(e){
   }
 });
 
+
+btnLoan.addEventListener('click', function(e){
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+  if(amount > 0 && currentAccount.movements.some(mov => mov >= amount*0.1)){
+    currentAccount.movements.push(amount);
+    updateUI(currentAccount);
+  }
+  inputLoanAmount = '';
+
+});
+
 btnClose.addEventListener('click', function(e){
   if(inputCloseUsername.value === currentAccount.username && Number(inputClosePin) === currentAccount.pin){
     const index = accounts.findIndex(
