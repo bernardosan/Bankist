@@ -80,9 +80,17 @@ const displayMovements = function(movements){
   });
 }
 
-const calcPrintBalance = function(movs){
-  const balance = movs.reduce((sum,num) => sum + num);
-  labelBalance.textContent = `${balance} €`
+const createUsernames = function(accs){
+  accs.forEach(function(acc){
+    acc.username = acc.owner.toLowerCase().split(' ').map(name => name[0]).join("");
+  });
+}
+
+createUsernames(accounts);
+
+const calcPrintBalance = function(acc){
+  acc.balance = acc.movements.reduce((sum,num) => sum + num);
+  labelBalance.textContent = `${acc.balance} €`;
 }
 
 const greaterMovement = function(movs){
@@ -107,11 +115,19 @@ const displaySummary = function(acc){
 
 let currentAccount;
 
+
+
+const updateUI = function(acc){
+  displayMovements(acc.movements);
+  calcPrintBalance(acc);
+  displaySummary(acc);
+}
+
 btnLogin.addEventListener('click', function(e){
   e.preventDefault();
 
   currentAccount = accounts.find(
-    acc => acc.owner.toLowerCase().split(' ').map(name => name[0]).join("") === inputLoginUsername.value
+    acc => acc.username === inputLoginUsername.value
   );
 
   if(currentAccount?.pin === Number(inputLoginPin.value)){
@@ -122,11 +138,40 @@ btnLogin.addEventListener('click', function(e){
   inputLoginUsername.value = inputLoginPin.value = '';
   inputLoginPin.blur();
 
-  displayMovements(currentAccount.movements);
-  calcPrintBalance(currentAccount.movements);
-  displaySummary(currentAccount);
+  updateUI(currentAccount)
 })
 
+btnTransfer.addEventListener('click', function(e){
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find( acc => acc.username === inputTransferTo.value);
+  console.log(amount, receiverAcc)
+  if(
+    amount > 0 && 
+    receiverAcc &&
+    currentAccount.balance >= amount && 
+    receiverAcc?.owner !== currentAccount.owner
+    ){
+      console.log("transfer valid")
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+    updateUI(currentAccount);
+    inputTransferTo.value = inputTransferAmount.value = '';
+  }
+});
+
+btnClose.addEventListener('click', function(e){
+  if(inputCloseUsername.value === currentAccount.username && Number(inputClosePin) === currentAccount.pin){
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    accounts.splice(index, 1);
+    
+    containerApp.style.opacity = 0;
+  }
+
+  inputCloseUsername.value = inputClosePin.value = '';
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -158,23 +203,27 @@ btnLogin.addEventListener('click', function(e){
 
 // })
 
-const createusername = function(user){
-  const username = user.toLowerCase().split(' ').map(name => name[0]).join("");
-  return username;
-}
+// const createusername = function(user){
+//   const username = user.toLowerCase().split(' ').map(name => name[0]).join("");
+//   return username;
+// }
 
-const createUsernames = function(accs){
-  return accs.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
-}
+// const createUsernames = function(accs){
+//   accs.forEach({ (acc,i) =>
+//     (username = acc.owner.toLowerCase().split(' ').map(name => name[0]).join(""))
+//   });
+// }
 
-const user = account1.owner;
-const username = accounts.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
-const deposits = account1.movements.filter( mov => mov > 0);
-const balance = account1.movements.reduce( (sum, num) => sum + num);
+// cons
+
+// const user = account1.owner;
+// const username = accounts.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
+// const deposits = account1.movements.filter( mov => mov > 0);
+// const balance = account1.movements.reduce( (sum, num) => sum + num);
 
 
 
-console.log(balance);
-console.log(deposits)
-console.log(createusername(account1.owner))
-console.log(createUsernames(accounts))
+// console.log(balance);
+// console.log(deposits)
+// console.log(createusername(account1.owner))
+// console.log(createUsernames(accounts))
