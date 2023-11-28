@@ -80,22 +80,17 @@ const displayMovements = function(movements){
   });
 }
 
-displayMovements(account1.movements)
-
 const calcPrintBalance = function(movs){
   const balance = movs.reduce((sum,num) => sum + num);
   labelBalance.textContent = `${balance} €`
 }
 
-calcPrintBalance(account1.movements)
-
 const greaterMovement = function(movs){
   return movs.reduce((sum,num) => num > sum ? num : sum)
 }
 
-console.log(greaterMovement(account1.movements));
-
-const displaySummary = function(movs){
+const displaySummary = function(acc){
+  const movs = acc.movements;
   const income = movs.filter(mov => mov > 0).reduce((acc, val) => acc + val);
   labelSumIn.textContent = `${income}€`;
 
@@ -104,14 +99,33 @@ const displaySummary = function(movs){
 
   const interest = movs
     .filter(mov => mov > 0)
-    .map(val => val*0.012)
+    .map(val => val*acc.interestRate/100)
     .filter(int => int >= 1)
     .reduce((acc, val) => acc+val);
-  labelSumInterest.textContent = `${Math.abs(interest)}€`;
+  labelSumInterest.textContent = `${interest}€`;
 }
 
-displaySummary(account1.movements);
+let currentAccount;
 
+btnLogin.addEventListener('click', function(e){
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    acc => acc.owner.toLowerCase().split(' ').map(name => name[0]).join("") === inputLoginUsername.value
+  );
+
+  if(currentAccount?.pin === Number(inputLoginPin.value)){
+    labelWelcome.textContent = `Welcome back,  ${currentAccount.owner.split(' ')[0]}`
+  }
+  containerApp.style.opacity = 100;
+  
+  inputLoginUsername.value = inputLoginPin.value = '';
+  inputLoginPin.blur();
+
+  displayMovements(currentAccount.movements);
+  calcPrintBalance(currentAccount.movements);
+  displaySummary(currentAccount);
+})
 
 
 /////////////////////////////////////////////////
@@ -144,19 +158,19 @@ displaySummary(account1.movements);
 
 // })
 
-const user = account1.owner;
-const username = accounts.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
-const deposits = account1.movements.filter( mov => mov > 0);
-const balance = account1.movements.reduce( (sum, num) => sum + num);
+const createusername = function(user){
+  const username = user.toLowerCase().split(' ').map(name => name[0]).join("");
+  return username;
+}
 
 const createUsernames = function(accs){
   return accs.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
 }
 
-const createusername = function(user){
-  const username = user.toLowerCase().split(' ').map(name => name[0]).join("");
-  return username;
-}
+const user = account1.owner;
+const username = accounts.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
+const deposits = account1.movements.filter( mov => mov > 0);
+const balance = account1.movements.reduce( (sum, num) => sum + num);
 
 
 
