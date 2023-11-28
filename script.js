@@ -61,16 +61,106 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+const displayMovements = function(movements){
+
+  containerMovements.innerHTML = ''
+
+  movements.forEach(function(mov, i) {
+
+    const type = mov > 0 ? 'deposit' : 'withdrawal'
+
+    const html = `
+    <div class="movements__row">
+          <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+          <div class="movements__value">${mov}</div>
+        </div>
+    `;
+
+    containerMovements.insertAdjacentHTML('afterbegin', html)
+  });
+}
+
+displayMovements(account1.movements)
+
+const calcPrintBalance = function(movs){
+  const balance = movs.reduce((sum,num) => sum + num);
+  labelBalance.textContent = `${balance} €`
+}
+
+calcPrintBalance(account1.movements)
+
+const greaterMovement = function(movs){
+  return movs.reduce((sum,num) => num > sum ? num : sum)
+}
+
+console.log(greaterMovement(account1.movements));
+
+const displaySummary = function(movs){
+  const income = movs.filter(mov => mov > 0).reduce((acc, val) => acc + val);
+  labelSumIn.textContent = `${income}€`;
+
+  const out = movs.filter(mov => mov < 0).reduce((acc, val) => acc + val);
+  labelSumOut.textContent = `${Math.abs(out)}€`;
+
+  const interest = movs
+    .filter(mov => mov > 0)
+    .map(val => val*0.012)
+    .filter(int => int >= 1)
+    .reduce((acc, val) => acc+val);
+  labelSumInterest.textContent = `${Math.abs(interest)}€`;
+}
+
+displaySummary(account1.movements);
+
+
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
 
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
+// const currencies = new Map([
+//   ['USD', 'United States dollar'],
+//   ['EUR', 'Euro'],
+//   ['GBP', 'Pound sterling'],
+// ]);
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
-/////////////////////////////////////////////////
+// /////////////////////////////////////////////////
+
+// // const eurToUsd = 1.1;
+
+// // const movementsUsd = movements.map(function(mov){
+// //   return mov * eurToUsd
+// // })
+
+
+// // movements.map((mov,i,arr) => {
+// //   if (mov > 0){
+     
+// //   } else {
+    
+// //   }
+
+// })
+
+const user = account1.owner;
+const username = accounts.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
+const deposits = account1.movements.filter( mov => mov > 0);
+const balance = account1.movements.reduce( (sum, num) => sum + num);
+
+const createUsernames = function(accs){
+  return accs.map( user => user.owner.toLowerCase().split(' ').map(name => name[0]).join(""));
+}
+
+const createusername = function(user){
+  const username = user.toLowerCase().split(' ').map(name => name[0]).join("");
+  return username;
+}
+
+
+
+console.log(balance);
+console.log(deposits)
+console.log(createusername(account1.owner))
+console.log(createUsernames(accounts))
